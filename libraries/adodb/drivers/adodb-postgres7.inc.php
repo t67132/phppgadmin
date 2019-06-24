@@ -22,9 +22,10 @@ class ADODB_postgres7 extends ADODB_postgres64 {
 	var $ansiOuter = true;
 	var $charSet = true; //set to true for Postgres 7 and above - PG client supports encodings
 	
-	function ADODB_postgres7() 
+	function __construct() 
 	{
-		$this->ADODB_postgres64();
+		//$this->ADODB_postgres64();
+		parent::__construct();
 		if (ADODB_ASSOC_CASE !== 2) {
 			$this->rsPrefix .= 'assoc_';
 		}
@@ -111,7 +112,7 @@ class ADODB_postgres7 extends ADODB_postgres64 {
 	{
 		$sql = 'SELECT t.tgargs as args
 		FROM
-		pg_trigger t,pg_class c,pg_proc p
+		pg_trigger AS t, pg_class AS c, pg_proc AS p
 		WHERE
 		t.tgenabled AND
 		t.tgrelid = c.oid AND
@@ -161,12 +162,12 @@ class ADODB_postgres7 extends ADODB_postgres64 {
 			
 			$rez = pg_query_params($this->_connectionID,$sql, $inputarr);
 		} else {
-			$rez = pg_query($this->_connectionID,$sql);
+			$rez = @pg_query($this->_connectionID,$sql);
 		}
 		// check if no data returned, then no need to create real recordset
-		if ($rez && pg_numfields($rez) <= 0) {
+		if ($rez && pg_num_fields($rez) <= 0) {
 			if (is_resource($this->_resultid) && get_resource_type($this->_resultid) === 'pgsql result') {
-				pg_freeresult($this->_resultid);
+				pg_free_result($this->_resultid);
 			}
 			$this->_resultid = $rez;
 			return true;
@@ -215,9 +216,9 @@ class ADORecordSet_postgres7 extends ADORecordSet_postgres64{
 	var $databaseType = "postgres7";
 	
 	
-	function ADORecordSet_postgres7($queryID,$mode=false) 
+	function __construct($queryID,$mode=false) 
 	{
-		$this->ADORecordSet_postgres64($queryID,$mode);
+		parent::__construct($queryID,$mode);
 	}
 	
 	 	// 10% speedup to move MoveNext to child class
@@ -246,9 +247,9 @@ class ADORecordSet_assoc_postgres7 extends ADORecordSet_postgres64{
 	var $databaseType = "postgres7";
 	
 	
-	function ADORecordSet_assoc_postgres7($queryID,$mode=false) 
+	function __construct($queryID,$mode=false) 
 	{
-		$this->ADORecordSet_postgres64($queryID,$mode);
+		parent::__construct($queryID,$mode);
 	}
 	
 	function _fetch()

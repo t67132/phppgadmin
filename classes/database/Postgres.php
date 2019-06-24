@@ -169,8 +169,9 @@ class Postgres extends ADODB_base {
 	 * Constructor
 	 * @param $conn The database connection
 	 */
-	function Postgres($conn) {
-		$this->ADODB_base($conn);
+	function __construct($conn) {
+		//$this->ADODB_base($conn);
+		parent::__construct($conn);
 	}
 
 	// Formatting functions
@@ -726,7 +727,7 @@ class Postgres extends ADODB_base {
 				pg_catalog.pg_attribute pa WHERE pc.relnamespace=pn.oid AND pc.oid=pa.attrelid
 				AND pa.attname ILIKE {$term} AND pa.attnum > 0 AND NOT pa.attisdropped AND pc.relkind IN ('r', 'v') {$where}
 			UNION ALL
-			SELECT 'FUNCTION', pp.oid, pn.nspname, NULL, pp.proname || '(' || pg_catalog.oidvectortypes(pp.proargtypes) || ')' FROM pg_catalog.pg_proc pp, pg_catalog.pg_namespace pn
+			SELECT 'FUNCTION', pp.oid, pn.nspname, NULL, pp.proname || '(' || pg_catalog.oidvectortypes(pp.proargtypes) || ')' FROM pg_catalog.pg_proc AS pp, pg_catalog.pg_namespace pn
 				WHERE pp.pronamespace=pn.oid AND NOT pp.proisagg AND pp.proname ILIKE {$term} {$where}
 			UNION ALL
 			SELECT 'INDEX', NULL, pn.nspname, pc.relname, pc2.relname FROM pg_catalog.pg_class pc, pg_catalog.pg_namespace pn,
@@ -790,7 +791,7 @@ class Postgres extends ADODB_base {
 				SELECT 'LANGUAGE', pl.oid, NULL, NULL, pl.lanname FROM pg_catalog.pg_language pl
 					WHERE lanname ILIKE {$term} {$lan_where}
 				UNION ALL
-				SELECT DISTINCT ON (p.proname) 'AGGREGATE', p.oid, pn.nspname, NULL, p.proname FROM pg_catalog.pg_proc p
+				SELECT DISTINCT ON (p.proname) 'AGGREGATE', p.oid, pn.nspname, NULL, p.proname FROM pg_catalog.pg_proc AS p
 					LEFT JOIN pg_catalog.pg_namespace pn ON p.pronamespace=pn.oid
 					WHERE p.proisagg AND p.proname ILIKE {$term} {$where}
 				UNION ALL
@@ -4180,12 +4181,12 @@ class Postgres extends ADODB_base {
 				p.proname || ' (' || pg_catalog.oidvectortypes(p.proargtypes) || ')' AS proproto,
 				CASE WHEN p.proretset THEN 'setof ' ELSE '' END || pg_catalog.format_type(p.prorettype, NULL) AS proreturns,
 				u.usename AS proowner
-			FROM pg_catalog.pg_proc p
+			FROM pg_catalog.pg_proc AS p
 				INNER JOIN pg_catalog.pg_namespace n ON n.oid = p.pronamespace
 				INNER JOIN pg_catalog.pg_language pl ON pl.oid = p.prolang
 				LEFT JOIN pg_catalog.pg_user u ON u.usesysid = p.proowner
-			WHERE NOT p.proisagg
-				AND {$where}
+			WHERE /*NOT p.proisagg
+				AND*/ {$where}
 			ORDER BY p.proname, proresult
 			";
 
@@ -4879,7 +4880,7 @@ class Postgres extends ADODB_base {
 				CASE WHEN t.tgenabled = 'D' THEN FALSE ELSE TRUE END AS tgenabled, p.oid AS prooid,
 				p.proname || ' (' || pg_catalog.oidvectortypes(p.proargtypes) || ')' AS proproto,
 				ns.nspname AS pronamespace
-			FROM pg_catalog.pg_trigger t, pg_catalog.pg_proc p, pg_catalog.pg_namespace ns
+			FROM pg_catalog.pg_trigger AS t, pg_catalog.pg_proc AS p, pg_catalog.pg_namespace AS ns
 			WHERE t.tgrelid = (SELECT oid FROM pg_catalog.pg_class WHERE relname='{$table}'
 				AND relnamespace=(SELECT oid FROM pg_catalog.pg_namespace WHERE nspname='{$c_schema}'))
 				AND ( tgconstraint = 0 OR NOT EXISTS
@@ -5888,7 +5889,7 @@ class Postgres extends ADODB_base {
 				ELSE pg_catalog.format_type(p.proargtypes[0], NULL) END AS proargtypes,
 				a.aggtransfn, format_type(a.aggtranstype, NULL) AS aggstype, a.aggfinalfn,
 				a.agginitval, a.aggsortop, u.usename, pg_catalog.obj_description(p.oid, 'pg_proc') AS aggrcomment
-			FROM pg_catalog.pg_proc p, pg_catalog.pg_namespace n, pg_catalog.pg_user u, pg_catalog.pg_aggregate a
+			FROM pg_catalog.pg_proc AS p, pg_catalog.pg_namespace AS n, pg_catalog.pg_user AS u, pg_catalog.pg_aggregate AS a
 			WHERE n.oid = p.pronamespace AND p.proowner=u.usesysid AND p.oid=a.aggfnoid
 				AND p.proisagg AND n.nspname='{$c_schema}'
 				AND p.proname='" . $name . "'
@@ -5910,7 +5911,7 @@ class Postgres extends ADODB_base {
 		$sql = "SELECT p.proname, CASE p.proargtypes[0] WHEN 'pg_catalog.\"any\"'::pg_catalog.regtype THEN NULL ELSE
 			   pg_catalog.format_type(p.proargtypes[0], NULL) END AS proargtypes, a.aggtransfn, u.usename,
 			   pg_catalog.obj_description(p.oid, 'pg_proc') AS aggrcomment
-			   FROM pg_catalog.pg_proc p, pg_catalog.pg_namespace n, pg_catalog.pg_user u, pg_catalog.pg_aggregate a
+			   FROM pg_catalog.pg_proc AS p, pg_catalog.pg_namespace AS n, pg_catalog.pg_user AS u, pg_catalog.pg_aggregate AS a
 			   WHERE n.oid = p.pronamespace AND p.proowner=u.usesysid AND p.oid=a.aggfnoid
 			   AND p.proisagg AND n.nspname='{$c_schema}' ORDER BY 1, 2";
 

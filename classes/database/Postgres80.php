@@ -327,7 +327,7 @@ class Postgres80 extends Postgres81 {
 					ELSE pg_catalog.format_type(p.proargtypes[0], NULL)
 				END AS proargtypes, a.aggtransfn, format_type(a.aggtranstype, NULL) AS aggstype,
 				a.aggfinalfn, a.agginitval, u.usename, pg_catalog.obj_description(p.oid, 'pg_proc') AS aggrcomment
-			FROM pg_catalog.pg_proc p, pg_catalog.pg_namespace n, pg_catalog.pg_user u, pg_catalog.pg_aggregate a
+			FROM pg_catalog.pg_proc AS p, pg_catalog.pg_namespace AS n, pg_catalog.pg_user AS u, pg_catalog.pg_aggregate AS a
 			WHERE n.oid = p.pronamespace AND p.proowner=u.usesysid AND p.oid=a.aggfnoid
 				AND p.proisagg AND n.nspname='{$c_schema}'
 				AND p.proname='{$name}'

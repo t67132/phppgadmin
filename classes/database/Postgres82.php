@@ -119,7 +119,7 @@ class Postgres82 extends Postgres83 {
 				t.tgname, pg_catalog.pg_get_triggerdef(t.oid) AS tgdef, t.tgenabled, p.oid AS prooid,
 				p.proname || ' (' || pg_catalog.oidvectortypes(p.proargtypes) || ')' AS proproto,
 				ns.nspname AS pronamespace
-			FROM pg_catalog.pg_trigger t, pg_catalog.pg_proc p, pg_catalog.pg_namespace ns
+			FROM pg_catalog.pg_trigger AS t, pg_catalog.pg_proc AS p, pg_catalog.pg_namespace AS ns
 			WHERE t.tgrelid = (SELECT oid FROM pg_catalog.pg_class WHERE relname='{$table}'
 				AND relnamespace=(SELECT oid FROM pg_catalog.pg_namespace WHERE nspname='{$c_schema}'))
 				AND (NOT tgisconstraint OR NOT EXISTS

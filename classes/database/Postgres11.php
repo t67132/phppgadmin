@@ -15,8 +15,9 @@ class Postgres11 extends Postgres {
 	 * Constructor
 	 * @param $conn The database connection
 	 */
-	function Postgres11($conn) {
-		$this->Postgres($conn);
+	function __construct($conn) {
+		//$this->Postgres($conn);
+		parent::__construct($conn);
 	}
 
 	// Help functions

@@ -117,7 +117,7 @@ WHERE relkind in ('r','v') AND (c.relname='%s' or c.relname = lower('%s'))
 	// to know what the concequences are. The other values are correct (wheren't in 0.94)
 	// -- Freek Dijkstra 
 
-	function ADODB_postgres64() 
+	public function __construct() 
 	{
 	// changes the metaColumnsSQL, adds columns: attnum[6]
 	}
@@ -143,7 +143,7 @@ WHERE relkind in ('r','v') AND (c.relname='%s' or c.relname = lower('%s'))
 		$result=pg_exec($this->_connectionID, "SELECT last_value FROM ${tablename}_${fieldname}_seq");
 		if ($result) {
 			$arr = @pg_fetch_row($result,0);
-			pg_freeresult($result);
+			pg_free_result($result);
 			if (isset($arr[0])) return $arr[0];
 		}
 		return false;
@@ -786,9 +786,9 @@ WHERE (c2.relname=\'%s\' or c2.relname=lower(\'%s\'))';
 			$rez = pg_exec($this->_connectionID,$sql);
 		}
 		// check if no data returned, then no need to create real recordset
-		if ($rez && pg_numfields($rez) <= 0) {
+		if ($rez && pg_num_fields($rez) <= 0) {
 			if (is_resource($this->_resultid) && get_resource_type($this->_resultid) === 'pgsql result') {
-				pg_freeresult($this->_resultid);
+				pg_free_result($this->_resultid);
 			}
 			$this->_resultid = $rez;
 			return true;
@@ -837,7 +837,7 @@ WHERE (c2.relname=\'%s\' or c2.relname=lower(\'%s\'))';
 	{
 		if ($this->transCnt) $this->RollbackTrans();
 		if ($this->_resultid) {
-			@pg_freeresult($this->_resultid);
+			@pg_free_result($this->_resultid);
 			$this->_resultid = false;
 		}
 		@pg_close($this->_connectionID);
@@ -873,7 +873,7 @@ class ADORecordSet_postgres64 extends ADORecordSet{
 	var $_blobArr;
 	var $databaseType = "postgres64";
 	var $canSeek = true;
-	function ADORecordSet_postgres64($queryID,$mode=false) 
+	function __construct($queryID,$mode=false) 
 	{
 		if ($mode === false) { 
 			global $ADODB_FETCH_MODE;
@@ -889,7 +889,7 @@ class ADORecordSet_postgres64 extends ADORecordSet{
 		default: $this->fetchMode = PGSQL_BOTH; break;
 		}
 		$this->adodbFetchMode = $mode;
-		$this->ADORecordSet($queryID);
+		parent::__construct($queryID);
 	}
 	
 	function GetRowAssoc($upper=true)
@@ -901,17 +901,16 @@ class ADORecordSet_postgres64 extends ADORecordSet{
 
 	function _initrs()
 	{
-	global $ADODB_COUNTRECS;
+		global $ADODB_COUNTRECS;
 		$qid = $this->_queryID;
-		$this->_numOfRows = ($ADODB_COUNTRECS)? @pg_numrows($qid):-1;
-		$this->_numOfFields = @pg_numfields($qid);
-		
+		$this->_numOfRows = ($ADODB_COUNTRECS)? @pg_num_rows($qid):-1;				
+		$this->_numOfFields = @pg_num_fields($qid);
 		// cache types for blob decode check
 		// apparently pg_fieldtype actually performs an sql query on the database to get the type.
 		if (empty($this->connection->noBlobs))
 		for ($i=0, $max = $this->_numOfFields; $i < $max; $i++) {  
-			if (pg_fieldtype($qid,$i) == 'bytea') {
-				$this->_blobArr[$i] = pg_fieldname($qid,$i);
+			if(pg_field_type($qid, $i) == 'bytea'){
+				$this->_blobArr[$i] = pg_field_name($qid,$i);
 			}
 		}
 	}
@@ -936,8 +935,8 @@ class ADORecordSet_postgres64 extends ADORecordSet{
 		// offsets begin at 0
 		
 		$o= new ADOFieldObject();
-		$o->name = @pg_fieldname($this->_queryID,$off);
-		$o->type = @pg_fieldtype($this->_queryID,$off);
+		$o->name = @pg_field_name($this->_queryID,$off);
+		$o->type = @pg_field_type($this->_queryID,$off);
 		$o->max_length = @pg_fieldsize($this->_queryID,$off);
 		return $o;	
 	}
@@ -1004,7 +1003,7 @@ class ADORecordSet_postgres64 extends ADORecordSet{
 
 	function _close() 
 	{ 
-		return @pg_freeresult($this->_queryID);
+		return @pg_free_result($this->_queryID);
 	}
 
 	function MetaType($t,$len=-1,$fieldobj=false)

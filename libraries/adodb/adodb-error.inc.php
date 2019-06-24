@@ -102,11 +102,11 @@ function adodb_error_pg($errormsg)
 			'/Relation [\"\'].*[\"\'] already exists|Cannot insert a duplicate key into (a )?unique index.*|duplicate key.*violates unique constraint/i'     
 			 	 => DB_ERROR_ALREADY_EXISTS
         );
-	reset($error_regexps);
-    while (list($regexp,$code) = each($error_regexps)) {
+    reset($error_regexps);
+    foreach($error_regexps as $regexp => $code){
         if (preg_match($regexp, $errormsg)) {
             return $code;
-        }
+        }        
     }
     // Fall back to DB_ERROR if there was no mapping.
     return DB_ERROR;
