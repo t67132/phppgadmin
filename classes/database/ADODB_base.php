@@ -20,7 +20,7 @@ class ADODB_base {
 	 * Base constructor
 	 * @param &$conn The connection object
 	 */
-	function __construct(&$conn) {
+	function ADODB_base(&$conn) {
 		$this->conn = $conn;
 	}
 
@@ -59,9 +59,8 @@ class ADODB_base {
 	 */
 	function arrayClean(&$arr) {
 		reset($arr);
-		foreach($arr as $k => $v){
+		while(list($k, $v) = each($arr))
 			$arr[$k] = addslashes($v);
-		}
 		return $arr;
 	}
 	
@@ -70,7 +69,7 @@ class ADODB_base {
 	 * @param $sql The SQL query to execute
 	 * @return A recordset
 	 */
-	public function execute($sql) {
+	function execute($sql) {
 		// Execute the statement
 		$rs = $this->conn->Execute($sql);
 
@@ -142,11 +141,11 @@ class ADODB_base {
 
 		// Build clause
 		$sql = '';
-		foreach($conditions as $key => $value){
+		while(list($key, $value) = each($conditions)) {
 			$this->clean($key);
 			$this->clean($value);
 			if ($sql) $sql .= " AND \"{$key}\"='{$value}'";
-			else $sql = "DELETE FROM {$schema}\"{$table}\" WHERE \"{$key}\"='{$value}'";			
+			else $sql = "DELETE FROM {$schema}\"{$table}\" WHERE \"{$key}\"='{$value}'";
 		}
 
 		// Check for failures
@@ -222,7 +221,7 @@ class ADODB_base {
 
 		// Populate the syntax arrays
 		reset($vars);
-		foreach($vars as $key => $value){
+		while(list($key, $value) = each($vars)) {
 			$this->fieldClean($key);
 			$this->clean($value);
 			if ($setClause) $setClause .= ", \"{$key}\"='{$value}'";
@@ -230,14 +229,14 @@ class ADODB_base {
 		}
 
 		reset($nulls);
-		foreach($nulls as $value){
+		while(list(, $value) = each($nulls)) {
 			$this->fieldClean($value);
 			if ($setClause) $setClause .= ", \"{$value}\"=NULL";
 			else $setClause = "UPDATE \"{$table}\" SET \"{$value}\"=NULL";
 		}
 
 		reset($where);
-		foreach($where as $key => $value){
+		while(list($key, $value) = each($where)) {
 			$this->fieldClean($key);
 			$this->clean($value);
 			if ($whereClause) $whereClause .= " AND \"{$key}\"='{$value}'";

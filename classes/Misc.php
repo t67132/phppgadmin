@@ -12,7 +12,7 @@
 		var $form;
 
 		/* Constructor */
-		function __construct() {
+		function Misc() {
 		}
 
 		/**
@@ -682,6 +682,7 @@
 			echo "<table class=\"tabs\"><tr>\n";
 			#echo "<div class=\"tabs\">\n";
 
+			# FIXME: Add if - Augusto 01/12/2016
 			if (count($tabs) > 0) 
 				$width = (int)(100 / count($tabs)).'%';
 			else
