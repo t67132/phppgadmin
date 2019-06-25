@@ -160,7 +160,7 @@ class XHtmlElement extends XHtmlSimpleElement {
 
 class XHTML_Button extends XHtmlElement {
 	function __construct ($name, $text = null) {
-		parent::XHtmlElement();
+		parent::__construct();
 		
 		$this->set_attribute("name", $name);
 		
@@ -170,8 +170,8 @@ class XHTML_Button extends XHtmlElement {
 
 
 class XHTML_Option extends XHtmlElement {
-	function __construct($text, $value = null) {
-		XHtmlElement::XHtmlElement(null);			
+	function __construct($text, $value = null) {		
+		parent::__construct(null);
 		$this->set_text($text);
 	}
 }
@@ -181,7 +181,7 @@ class XHTML_Select extends XHTMLElement {
 	var $_data;
 
 	function __construct ($name, $multiple = false, $size = null) {
-		XHtmlElement::XHtmlElement();					
+		parent::__construct();				
 
 		$this->set_attribute("name", $name);
 		if ($multiple) $this->set_attribute("multiple","multiple");
@@ -206,7 +206,10 @@ class XHTML_Select extends XHTMLElement {
 	
 	function fetch() {
 		if (isset($this->_data) && $this->_data) {
-			foreach ($this->_data as $value) { $this->add(new XHTML_Option($value)); }
+			foreach ($this->_data as $value) { 
+				$name = new XHTML_Option($value);
+				$this->add($name); 
+			}
 		}
 		return parent::fetch();
 	}
